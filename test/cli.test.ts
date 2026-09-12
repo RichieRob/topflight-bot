@@ -39,7 +39,7 @@ test('single runner lock excludes overlap and releases cleanly', async () => {
 test('dry run uses the same strategy and snapshot without dispatching buys or sells', async () => {
   const snapshot = { clubs: [{ id: 21, held: 10 }], book: { cash: 30 } };
   let decisions = 0; const writes: unknown[] = []; const logged: unknown[] = [];
-  const bot = { snapshot: async () => snapshot, buy: async (...args: unknown[]) => writes.push(args), sell: async (...args: unknown[]) => writes.push(args) };
+  const bot = { snapshot: async () => snapshot, buy: async (...args: unknown[]) => writes.push(args), sell: async (...args: unknown[]) => writes.push(args), fade: async (...args: unknown[]) => writes.push(args), cover: async (...args: unknown[]) => writes.push(args) };
   const decide = (state: any) => { decisions++; assert.equal(state, snapshot); return { sell: 21, tokens: '3.5' }; };
   await runCycle(bot, decide, true, value => logged.push(value));
   assert.equal(decisions, 1); assert.deepEqual(writes, []);
@@ -49,8 +49,28 @@ test('dry run uses the same strategy and snapshot without dispatching buys or se
 });
 
 test('invalid strategy actions fail before dispatch', async () => {
-  const bot = { snapshot: async () => ({}), buy: async () => { throw new Error('unexpected write'); }, sell: async () => { throw new Error('unexpected write'); } };
+  const unexpected = async () => { throw new Error('unexpected write'); };
+  const bot = { snapshot: async () => ({}), buy: unexpected, sell: unexpected, fade: unexpected, cover: unexpected };
   await assert.rejects(runCycle(bot, () => ({ buy: 1, usd: -8 }), false), /positive decimal/);
+  await assert.rejects(runCycle(bot, () => ({ fade: 21, usd: 0 }), true), /positive decimal/);
+  await assert.rejects(runCycle(bot, () => ({ cover: 21, tokens: 'bad' }), false), /positive decimal/);
+  await assert.rejects(runCycle(bot, () => ({ buy: 21, fade: 21, usd: '8' }), false), /exactly one action/);
+});
+
+test('all four actions use their SDK method and preserve units; dry-run dispatches none', async () => {
+  const writes: unknown[] = [];
+  const bot = {
+    snapshot: async () => ({ clubs: [{ id: 21 }], book: {} }),
+    buy: async (...args: unknown[]) => writes.push(['buy', ...args]),
+    sell: async (...args: unknown[]) => writes.push(['sell', ...args]),
+    fade: async (...args: unknown[]) => writes.push(['fade', ...args]),
+    cover: async (...args: unknown[]) => writes.push(['cover', ...args]),
+  };
+  const actions = [{ buy: 21, usd: '8.25' }, { sell: 21, tokens: '3.5' }, { fade: 21, usd: '7.75' }, { cover: 21, tokens: '2.25' }];
+  for (const action of actions) await runCycle(bot, () => action, true, () => {});
+  assert.deepEqual(writes, []);
+  for (const action of actions) await runCycle(bot, () => action, false, () => {});
+  assert.deepEqual(writes, [['buy', 21, '8.25'], ['sell', 21, '3.5'], ['fade', 21, '7.75'], ['cover', 21, '2.25']]);
 });
 
 test('npm-style symlink entry actually runs the CLI', async () => {

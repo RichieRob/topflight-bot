@@ -5,11 +5,17 @@ type Action = {
 } | {
     sell: number;
     tokens: number | string;
+} | {
+    fade: number;
+    usd: number | string;
+} | {
+    cover: number;
+    tokens: number | string;
 } | null;
-export declare function runCycle(bot: {
+type ActionName = 'buy' | 'sell' | 'fade' | 'cover';
+type CycleBot = {
     snapshot(): Promise<any>;
-    buy(id: number, usd: number | string): Promise<any>;
-    sell(id: number, tokens: number | string): Promise<any>;
-}, decide: (snapshot: any) => Action | Promise<Action>, dryRun: boolean, log?: (value: unknown) => void): Promise<void>;
+} & Record<ActionName, (id: number, amount: number | string) => Promise<any>>;
+export declare function runCycle(bot: CycleBot, decide: (snapshot: any) => Action | Promise<Action>, dryRun: boolean, log?: (value: unknown) => void): Promise<void>;
 export declare function main(args?: string[]): Promise<void>;
 export {};

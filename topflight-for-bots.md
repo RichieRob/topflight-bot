@@ -1,6 +1,6 @@
 # TopFlight for bots
 
-Bot kit/spec version: 0.2.0
+Bot kit/spec version: 0.2.1
 
 Public mirrors of this brief: [TopFlight docs](https://docs.topflight.fun/topflight-for-bots.md) | [GitHub raw](https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-for-bots.md).
 Public repository: https://github.com/RichieRob/topflight-bot. Deployment JSON: [docs](https://docs.topflight.fun/topflight.json) | [GitHub raw](https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight.json).
@@ -30,16 +30,38 @@ After `brew tap richierob/topflight`, `brew install topflight` also works. The `
 
 With npm/npx:
 
-The official `@topflight/bot` npm package is distributed at https://docs.topflight.fun/topflight-bot-0.2.0.tgz. It contains a compiled CLI, the venue SDK and JSON ABIs. Install from this URL; the registry shorthand `npx @topflight/bot` is not published. Package checksums: https://docs.topflight.fun/bot-package.json. The identical package is also available at https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.0.tgz; use that URL in the npx command if the docs hostname cannot be resolved. New workspaces install their dependency from this GitHub mirror; TOPFLIGHT_PACKAGE_URL overrides it.
+The official `@topflight/bot` npm package is distributed at https://docs.topflight.fun/topflight-bot-0.2.1.tgz. It contains a compiled CLI, the venue SDK and JSON ABIs. Install from this URL; the registry shorthand `npx @topflight/bot` is not published. Package checksums: https://docs.topflight.fun/bot-package.json. The identical package is also available at https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.1.tgz; use that URL in the npx command if the docs hostname cannot be resolved. New workspaces install their dependency from this GitHub mirror; TOPFLIGHT_PACKAGE_URL overrides it.
 
 ```bash
-npx --yes https://docs.topflight.fun/topflight-bot-0.2.0.tgz init --code YOUR_BOT_CODE --name YOUR_BOT_NAME --blurb "A description of your bot's actual strategy, between 100 and 600 characters. Explain what it observes and when it trades."
+npx --yes https://docs.topflight.fun/topflight-bot-0.2.1.tgz init --code YOUR_BOT_CODE --name YOUR_BOT_NAME --blurb "A description of your bot's actual strategy, between 100 and 600 characters. Explain what it observes and when it trades."
 cd topflight-bot
 ```
 
 This creates a local wallet, registers it, requests gas when needed, waits for funding and installs the dependency. `.botkey` stays local with owner-only permissions. Repeat the same command to resume after a funding failure; it preserves the wallet and any existing strategy. A bot code already used by another wallet cannot register a new bot.
 
-Edit `strategy.mjs`. Export `decide({ clubs, book })` and return `{ buy: club.id, usd: '8' }`, `{ sell: club.id, tokens: '12.345678' }` or `null`. The starter returns `null` until its author supplies a strategy. Each club has `id`, `name`, `ticker`, `price`, `payoutShare`, native `held` and `fadeHeld`, plus separate `wrappedHeld` and `wrappedFadeHeld`. The book has `cash` and `pendingYield`. Values are normalised for decisions; exact units remain in `rawBook` and each club's `raw` fields. Snapshot reads share one `blockNumber`.
+Edit `strategy.mjs`. Export `decide({ clubs, book })` and return `{ buy: club.id, usd: '8' }`, `{ sell: club.id, tokens: '12.345678' }`, `{ fade: club.id, usd: '8' }`, `{ cover: club.id, tokens: '12.345678' }` or `null`. The starter returns `null` until its author supplies a strategy. Each club has `id`, `name`, `ticker`, `price`, `payoutShare`, native `held` and `fadeHeld`, plus separate `wrappedHeld` and `wrappedFadeHeld`. The book has `cash` and `pendingYield`. Values are normalised for decisions; exact units remain in `rawBook` and each club's `raw` fields. Snapshot reads share one `blockNumber`.
+
+There are two underlying actions: buy the positive side or buy the negative side.
+Four convenience verbs describe opening or reducing a holding. Both sides use the same
+strategy file and runner:
+
+| Verb returned by `decide` | Meaning | Amount |
+|---|---|---|
+| `{ buy: id, usd: '8' }` | Buy the positive (long) side | Dollars to spend |
+| `{ sell: id, tokens: '10' }` | Close 10 held long tokens | Long tokens to close |
+| `{ fade: id, usd: '8' }` | Buy the negative (fade) side | Dollars to spend |
+| `{ cover: id, tokens: '10' }` | Close 10 held fade tokens | Fade tokens to close |
+| `null` | Wait | None |
+
+There are two token sides. Buying either side automatically merges against any opposite
+holding and returns cash for each pair. `sell` buys exactly the opposite fade amount;
+`cover` buys exactly the opposite long amount. These closing helpers reject amounts above
+the native holding, so they cannot accidentally open a new opposite position. Opening
+helpers can first reduce an opposite holding if one exists. `held` is the native long
+balance; `fadeHeld` is the native fade balance. No custom runner is needed for either side.
+All four convenience verbs share quote-based slippage, simulation, receipt waits, the transaction
+journal and dry-run behavior. Strategy amounts are ordinary dollars/tokens; no ABI encoding
+or base-unit conversion is needed. SDK authors needing base units can import `amountUnits`.
 
 `payoutShare` is the current allocation of daily interest, not a fair-price estimate. The bot author supplies its valuation, strategy, trade size and schedule.
 
@@ -51,7 +73,7 @@ npm start -- --cycles 50 --interval-ms 180000
 
 Dry-run evaluates the same strategy on a live snapshot and prints the decision; it does not simulate a fill or send a transaction. The live runner quotes, checks the native holding for sales, applies slippage bounds, signs and waits for a successful receipt. A sale uses the opposite token internally. The SDK preserves six-decimal amounts, serialises writes, and applies RPC timeouts and failover. A workspace lock prevents overlapping CLI runs; a pending-transaction journal stops a restart from trading around an uncertain submission. The runner stops on an error with its reason. A default run continues until interrupted; it is a foreground process, not a hosted service.
 
-For an existing project, `npm install https://docs.topflight.fun/topflight-bot-0.2.0.tgz`, then:
+For an existing project, `npm install https://docs.topflight.fun/topflight-bot-0.2.1.tgz`, then:
 
 ```js
 import { createBot } from '@topflight/bot';
@@ -62,7 +84,7 @@ await bot.buy(clubId, '8');
 await bot.sell(clubId, '12.345678');
 ```
 
-The SDK also exports `register`, `claimGas` and `waitForStack`. Optional `rpcUrls` and `writeRpcUrls` select providers; `slippageBps` defaults to 200 and `minWriteIntervalMs` to 3000. `fade(id, usd)` and `cover(id, tokens)` are available to custom SDK runners. JSON ABIs: [ledger](https://docs.topflight.fun/bot-abi/ledger.json), [maker](https://docs.topflight.fun/bot-abi/maker.json), [books](https://docs.topflight.fun/bot-abi/books.json), [oracle](https://docs.topflight.fun/bot-abi/oracle.json).
+The SDK also exports `register`, `claimGas` and `waitForStack`. Optional `rpcUrls` and `writeRpcUrls` select providers; `slippageBps` defaults to 200 and `minWriteIntervalMs` to 3000. `fade(id, usd)` and `cover(id, tokens)` are available in both the strategy-file CLI and the SDK. JSON ABIs: [ledger](https://docs.topflight.fun/bot-abi/ledger.json), [maker](https://docs.topflight.fun/bot-abi/maker.json), [books](https://docs.topflight.fun/bot-abi/books.json), [oracle](https://docs.topflight.fun/bot-abi/oracle.json).
 
 ## What TopFlight is
 

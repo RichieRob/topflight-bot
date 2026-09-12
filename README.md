@@ -32,7 +32,7 @@ of the npx command below. The formula installs the same versioned kit and verifi
 Node.js 20 or later. The official npm package is served directly from the docs site:
 
 ```bash
-npx --yes https://docs.topflight.fun/topflight-bot-0.2.0.tgz init \
+npx --yes https://docs.topflight.fun/topflight-bot-0.2.1.tgz init \
   --code YOUR_BOT_CODE --name YOUR_BOT_NAME \
   --blurb "A description of your bot's actual strategy, between 100 and 600 characters. Explain what it observes and when it trades."
 cd topflight-bot
@@ -53,7 +53,7 @@ https://github.com/RichieRob/topflight-bot; neither private application reposito
 If the docs hostname is unavailable, use the identical package through GitHub:
 
 ```bash
-npx --yes https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.0.tgz --help
+npx --yes https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.1.tgz --help
 ```
 
 Replace `--help` with the same `init` arguments above. New workspaces install the dependency
@@ -62,7 +62,7 @@ still need the live TopFlight service; a documentation mirror does not host thos
 All subsequent market reads and trades go directly to Sepolia RPC.
 
 This repository also mirrors `topflight-for-bots.md`, `topflight.json`, `bot-package.json`
-and `abi/*.json`. The spec/kit version is 0.2.0. Package SHA256 and SRI are in the manifest;
+and `abi/*.json`. The spec/kit version is 0.2.1. Package SHA256 and SRI are in the manifest;
 the public repo's `mirror.json` records the SHA256 of each mirrored artifact.
 
 ## Write the strategy
@@ -101,7 +101,7 @@ npm start -- --cycles 50 --interval-ms 180000
 
 Dry-run calls the same `decide` function on a live snapshot and prints its action, with
 no wallet attached to the execution client. It is not a backtest or a fill simulation.
-An invalid action fails with a reason. `run` accepts one buy or sell each cycle and runs
+An invalid action fails with a reason. `run` accepts one buy, sell, fade or cover each cycle and runs
 until interrupted unless `--once` or `--cycles` is set. It does not start a background daemon.
 The default interval is three minutes; the author can change it.
 
@@ -110,10 +110,32 @@ transaction is recorded before broadcast; the record is removed after a receipt 
 An uncertain transaction leaves the record in place and the next live run refuses to trade
 until the operator has checked that transaction. A rejected trade stops the loop with its reason.
 
+There are two underlying actions: buy the positive side or buy the negative side.
+Four convenience verbs describe opening or reducing a holding. Both sides use the same
+strategy file and runner:
+
+| Verb returned by `decide` | Meaning | Amount |
+|---|---|---|
+| `{ buy: id, usd: '8' }` | Buy the positive (long) side | Dollars to spend |
+| `{ sell: id, tokens: '10' }` | Close 10 held long tokens | Long tokens to close |
+| `{ fade: id, usd: '8' }` | Buy the negative (fade) side | Dollars to spend |
+| `{ cover: id, tokens: '10' }` | Close 10 held fade tokens | Fade tokens to close |
+| `null` | Wait | None |
+
+There are two token sides. Buying either side automatically merges against any opposite
+holding and returns cash for each pair. `sell` buys exactly the opposite fade amount;
+`cover` buys exactly the opposite long amount. These closing helpers reject amounts above
+the native holding, so they cannot accidentally open a new opposite position. Opening
+helpers can first reduce an opposite holding if one exists. `held` is the native long
+balance; `fadeHeld` is the native fade balance. No custom runner is needed for either side.
+All four convenience verbs share quote-based slippage, simulation, receipt waits, the transaction
+journal and dry-run behavior. Strategy amounts are ordinary dollars/tokens; no ABI encoding
+or base-unit conversion is needed. SDK authors needing base units can import `amountUnits`.
+
 ## Use the SDK directly
 
 ```bash
-npm install https://docs.topflight.fun/topflight-bot-0.2.0.tgz
+npm install https://docs.topflight.fun/topflight-bot-0.2.1.tgz
 ```
 
 ```js
@@ -123,6 +145,8 @@ const snapshot = await bot.snapshot();
 // When the strategy decides to act:
 await bot.buy(clubId, '8');
 await bot.sell(clubId, '12.345678');
+await bot.fade(clubId, '8');
+await bot.cover(clubId, '12.345678');
 ```
 
 `buy` and `fade` accept dollars; `sell` and `cover` accept tokens. Decimal strings preserve

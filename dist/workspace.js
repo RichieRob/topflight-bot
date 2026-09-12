@@ -1,10 +1,12 @@
 import { mkdir, readFile, writeFile, chmod, open, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-export const packageUrl = process.env.TOPFLIGHT_PACKAGE_URL ?? 'https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.0.tgz';
+export const packageUrl = process.env.TOPFLIGHT_PACKAGE_URL ?? 'https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.1.tgz';
 export const starterStrategy = `// Put your trading model here. payoutShare describes current yield allocation,
 // not a fair token price. Return one action per cycle, or null to wait.
-// Examples: { buy: club.id, usd: '8' }, { sell: club.id, tokens: '10' }.
+// Open long: { buy: club.id, usd: '8' }; close long: { sell: club.id, tokens: '10' }.
+// Open fade: { fade: club.id, usd: '8' }; close fade: { cover: club.id, tokens: '10' }.
+// Opposite sides merge automatically. The runner handles quotes, signing and receipts.
 export function decide({ clubs, book }) {
   return null;
 }

@@ -17,15 +17,19 @@ export async function runCycle(bot, decide, dryRun, log = console.log) {
         log({ action: null });
         return;
     }
-    if (typeof action !== 'object' || ('buy' in action) === ('sell' in action))
-        throw new Error('Strategy must return null, { buy: id, usd }, or { sell: id, tokens }.');
-    const id = 'buy' in action ? action.buy : action.sell;
-    const amount = 'buy' in action ? action.usd : action.tokens;
+    const choices = ['buy', 'sell', 'fade', 'cover'];
+    const selected = typeof action === 'object' ? choices.filter(name => name in action) : [];
+    if (selected.length !== 1)
+        throw new Error('Strategy must return null or exactly one action: { buy: id, usd }, { sell: id, tokens }, { fade: id, usd }, or { cover: id, tokens }.');
+    const name = selected[0];
+    const fields = action;
+    const id = fields[name];
+    const amount = fields[name === 'buy' || name === 'fade' ? 'usd' : 'tokens'];
     if (!Number.isSafeInteger(id) || id < 0 || !['string', 'number'].includes(typeof amount) || !/^(?:\d+)(?:\.\d+)?$/.test(String(amount)) || !(Number(amount) > 0))
         throw new Error('Strategy action requires a non-negative club id and a positive decimal amount.');
     log({ dryRun, action });
     if (!dryRun)
-        log('buy' in action ? await bot.buy(action.buy, action.usd) : await bot.sell(action.sell, action.tokens));
+        log(await bot[name](id, amount));
 }
 function positive(raw, fallback, name) {
     const value = raw === undefined ? fallback : Number(raw);
@@ -172,7 +176,7 @@ export async function main(args = process.argv.slice(2)) {
                 throw new Error('Unresolved transaction in .topflight-pending.json. Confirm its final outcome before removing the journal and restarting.');
         }
         for (let cycle = 0; cycle < cycles && !stopped; cycle++) {
-            await runCycle({ snapshot: () => bot.snapshot(address), buy: bot.buy, sell: bot.sell }, strategy.decide, Boolean(flags['dry-run']), value => console.log(stringify(value)));
+            await runCycle({ snapshot: () => bot.snapshot(address), buy: bot.buy, sell: bot.sell, fade: bot.fade, cover: bot.cover }, strategy.decide, Boolean(flags['dry-run']), value => console.log(stringify(value)));
             if (cycle + 1 < cycles && !stopped)
                 await new Promise(resolve => {
                     const timer = setTimeout(resolve, interval);
