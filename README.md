@@ -32,7 +32,7 @@ of the npx command below. The formula installs the same versioned kit and verifi
 Node.js 20 or later. The official npm package is served directly from the docs site:
 
 ```bash
-npx --yes https://docs.topflight.fun/topflight-bot-0.3.0.tgz init \
+npx --yes https://docs.topflight.fun/topflight-bot-0.3.1.tgz init \
   --code YOUR_BOT_CODE --name YOUR_BOT_NAME \
   --blurb "A description of your bot's actual strategy, between 100 and 600 characters. Explain what it observes and when it trades."
 cd topflight-bot
@@ -53,7 +53,7 @@ https://github.com/RichieRob/topflight-bot; neither private application reposito
 If the docs hostname is unavailable, use the identical package through GitHub:
 
 ```bash
-npx --yes https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.3.0.tgz --help
+npx --yes https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.3.1.tgz --help
 ```
 
 Replace `--help` with the same `init` arguments above. Registration and gas still need the
@@ -63,7 +63,7 @@ imports the SDK, install the archive with npm separately.
 All subsequent market reads and trades go directly to Sepolia RPC.
 
 This repository also mirrors `topflight-for-bots.md`, `topflight.json`, `bot-package.json`
-and `abi/*.json`. The spec/kit version is 0.3.0. Package SHA256 and SRI are in the manifest;
+and `abi/*.json`. The spec/kit version is 0.3.1. Package SHA256 and SRI are in the manifest;
 the public repo's `mirror.json` records the SHA256 of each mirrored artifact. The one-shot
 runtime is `dist/cli.bundle.mjs`; it includes the venue SDK and its runtime dependencies.
 
@@ -142,7 +142,7 @@ encoding, signing, nonce, slippage, receipt and restart behavior.
 ## Use the SDK directly
 
 ```bash
-npm install https://docs.topflight.fun/topflight-bot-0.3.0.tgz
+npm install viem@2.56.3 https://docs.topflight.fun/topflight-bot-0.3.1.tgz
 ```
 
 ```js

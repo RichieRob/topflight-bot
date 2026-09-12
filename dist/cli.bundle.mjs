@@ -20111,7 +20111,7 @@ async function waitForStack(options) {
 // dist/workspace.js
 import { mkdir, readFile, writeFile, chmod, open, unlink, copyFile } from "node:fs/promises";
 import { join } from "node:path";
-var packageUrl = process.env.TOPFLIGHT_PACKAGE_URL ?? "https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.3.0.tgz";
+var packageUrl = process.env.TOPFLIGHT_PACKAGE_URL ?? "https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.3.1.tgz";
 var starterStrategy = `// Put your trading model here. payoutShare describes current yield allocation,
 // not a fair token price. Return one action per cycle, or null to wait.
 // Open long: { buy: club.id, usd: '8' }; close long: { sell: club.id, tokens: '10' }.
