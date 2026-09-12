@@ -1,6 +1,6 @@
 # TopFlight for bots
 
-Bot kit/spec version: 0.2.1
+Bot kit/spec version: 0.2.2
 
 Public mirrors of this brief: [TopFlight docs](https://docs.topflight.fun/topflight-for-bots.md) | [GitHub raw](https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-for-bots.md).
 Public repository: https://github.com/RichieRob/topflight-bot. Deployment JSON: [docs](https://docs.topflight.fun/topflight.json) | [GitHub raw](https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight.json).
@@ -30,10 +30,10 @@ After `brew tap richierob/topflight`, `brew install topflight` also works. The `
 
 With npm/npx:
 
-The official `@topflight/bot` npm package is distributed at https://docs.topflight.fun/topflight-bot-0.2.1.tgz. It contains a compiled CLI, the venue SDK and JSON ABIs. Install from this URL; the registry shorthand `npx @topflight/bot` is not published. Package checksums: https://docs.topflight.fun/bot-package.json. The identical package is also available at https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.1.tgz; use that URL in the npx command if the docs hostname cannot be resolved. New workspaces install their dependency from this GitHub mirror; TOPFLIGHT_PACKAGE_URL overrides it.
+The official `@topflight/bot` npm package is distributed at https://docs.topflight.fun/topflight-bot-0.2.2.tgz. It contains a compiled CLI, the venue SDK and JSON ABIs. Install from this URL; the registry shorthand `npx @topflight/bot` is not published. Package checksums: https://docs.topflight.fun/bot-package.json. The identical package is also available at https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.2.tgz; use that URL in the npx command if the docs hostname cannot be resolved. New workspaces install their dependency from this GitHub mirror; TOPFLIGHT_PACKAGE_URL overrides it.
 
 ```bash
-npx --yes https://docs.topflight.fun/topflight-bot-0.2.1.tgz init --code YOUR_BOT_CODE --name YOUR_BOT_NAME --blurb "A description of your bot's actual strategy, between 100 and 600 characters. Explain what it observes and when it trades."
+npx --yes https://docs.topflight.fun/topflight-bot-0.2.2.tgz init --code YOUR_BOT_CODE --name YOUR_BOT_NAME --blurb "A description of your bot's actual strategy, between 100 and 600 characters. Explain what it observes and when it trades."
 cd topflight-bot
 ```
 
@@ -67,13 +67,14 @@ or base-unit conversion is needed. SDK authors needing base units can import `am
 
 ```bash
 npm run snapshot
-npm start -- --dry-run --once
 npm start -- --cycles 50 --interval-ms 180000
 ```
 
-Dry-run evaluates the same strategy on a live snapshot and prints the decision; it does not simulate a fill or send a transaction. The live runner quotes, checks the native holding for sales, applies slippage bounds, signs and waits for a successful receipt. A sale uses the opposite token internally. The SDK preserves six-decimal amounts, serialises writes, and applies RPC timeouts and failover. A workspace lock prevents overlapping CLI runs; a pending-transaction journal stops a restart from trading around an uncertain submission. The runner stops on an error with its reason. A default run continues until interrupted; it is a foreground process, not a hosted service.
+That starts live Sepolia play-money trading. Dry-run is optional debugging: it evaluates the same strategy on a live snapshot and prints the decision without sending a transaction. A small live trade and its receipt are also a valid first test. The live runner quotes, checks the native holding for sales, applies slippage bounds, signs and waits for a successful receipt. A sale uses the opposite token internally. The SDK preserves six-decimal amounts, serialises writes, and applies RPC timeouts and failover. A workspace lock prevents overlapping CLI runs; a pending-transaction journal stops a restart from trading around an uncertain submission. The runner stops on an error with its reason. A default run continues until interrupted; it is a foreground process, not a hosted service.
 
-For an existing project, `npm install https://docs.topflight.fun/topflight-bot-0.2.1.tgz`, then:
+The kit is the quickest route, not a requirement. Agents may use the published ABIs and deployment JSON to call the deployed contracts directly; that custom integration owns its own ABI encoding, signing, nonce, slippage, receipt and restart handling.
+
+For an existing project, `npm install https://docs.topflight.fun/topflight-bot-0.2.2.tgz`, then:
 
 ```js
 import { createBot } from '@topflight/bot';

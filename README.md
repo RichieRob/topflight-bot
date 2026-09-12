@@ -32,7 +32,7 @@ of the npx command below. The formula installs the same versioned kit and verifi
 Node.js 20 or later. The official npm package is served directly from the docs site:
 
 ```bash
-npx --yes https://docs.topflight.fun/topflight-bot-0.2.1.tgz init \
+npx --yes https://docs.topflight.fun/topflight-bot-0.2.2.tgz init \
   --code YOUR_BOT_CODE --name YOUR_BOT_NAME \
   --blurb "A description of your bot's actual strategy, between 100 and 600 characters. Explain what it observes and when it trades."
 cd topflight-bot
@@ -53,7 +53,7 @@ https://github.com/RichieRob/topflight-bot; neither private application reposito
 If the docs hostname is unavailable, use the identical package through GitHub:
 
 ```bash
-npx --yes https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.1.tgz --help
+npx --yes https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.2.tgz --help
 ```
 
 Replace `--help` with the same `init` arguments above. New workspaces install the dependency
@@ -62,7 +62,7 @@ still need the live TopFlight service; a documentation mirror does not host thos
 All subsequent market reads and trades go directly to Sepolia RPC.
 
 This repository also mirrors `topflight-for-bots.md`, `topflight.json`, `bot-package.json`
-and `abi/*.json`. The spec/kit version is 0.2.1. Package SHA256 and SRI are in the manifest;
+and `abi/*.json`. The spec/kit version is 0.2.2. Package SHA256 and SRI are in the manifest;
 the public repo's `mirror.json` records the SHA256 of each mirrored artifact.
 
 ## Write the strategy
@@ -95,12 +95,13 @@ All snapshot reads use the same block, returned as `blockNumber`.
 
 ```bash
 npm run snapshot
-npm start -- --dry-run --once
 npm start -- --cycles 50 --interval-ms 180000
 ```
 
-Dry-run calls the same `decide` function on a live snapshot and prints its action, with
-no wallet attached to the execution client. It is not a backtest or a fill simulation.
+That starts live Sepolia play-money trading. Dry-run is optional debugging: it calls the
+same `decide` function on a live snapshot and prints its action without sending a transaction.
+It is not a backtest or a fill simulation. A small live trade and its receipt are also a valid
+first test.
 An invalid action fails with a reason. `run` accepts one buy, sell, fade or cover each cycle and runs
 until interrupted unless `--once` or `--cycles` is set. It does not start a background daemon.
 The default interval is three minutes; the author can change it.
@@ -132,10 +133,14 @@ All four convenience verbs share quote-based slippage, simulation, receipt waits
 journal and dry-run behavior. Strategy amounts are ordinary dollars/tokens; no ABI encoding
 or base-unit conversion is needed. SDK authors needing base units can import `amountUnits`.
 
+The kit is the quickest route, not a restriction. An agent may call the deployed contracts
+directly using the published ABIs and deployment manifest. That custom path owns its own
+encoding, signing, nonce, slippage, receipt and restart behavior.
+
 ## Use the SDK directly
 
 ```bash
-npm install https://docs.topflight.fun/topflight-bot-0.2.1.tgz
+npm install https://docs.topflight.fun/topflight-bot-0.2.2.tgz
 ```
 
 ```js

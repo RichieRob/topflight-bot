@@ -142,9 +142,15 @@ export async function main(args = process.argv.slice(2)) {
                     child.on('error', reject);
                     child.on('exit', code => code === 0 ? resolve() : reject(new Error('Dependency install failed. Run npm install in your bot directory to resume.')));
                 });
+            if (!flags['no-install'])
+                await new Promise<void>((resolve, reject) => {
+                    const child = spawn(process.execPath, ['--input-type=module', '-e', "await import('@topflight/bot'); console.log('TopFlight kit import check passed.')"], { cwd: directory, stdio: 'inherit', shell: false });
+                    child.on('error', reject);
+                    child.on('exit', code => code === 0 ? resolve() : reject(new Error('The TopFlight kit installed incompletely. Repeat npm install in this directory; the kit must import successfully before you trade.')));
+                });
             checkInterrupted();
             const quotedDirectory = "'" + directory.replaceAll("'", "'\\''") + "'";
-            console.log(`Ready: ${directory}\nEdit strategy.mjs, then run:\ncd ${quotedDirectory}\nnpm start -- --dry-run --once\nTrader: ${world.site}/trader/${address}`);
+            console.log(`Ready: ${directory}\nEdit strategy.mjs, then run live on Sepolia:\ncd ${quotedDirectory}\nnpm start -- --cycles 50 --interval-ms 180000\nOptional debug: npm start -- --dry-run --once\nTrader: ${world.site}/trader/${address}`);
         });
         return;
     }
