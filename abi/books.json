@@ -1,0 +1,101 @@
+[
+  {
+    "name": "bookOf",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "account"
+      },
+      {
+        "type": "uint256",
+        "name": "marketId"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "tuple",
+        "name": "book",
+        "components": [
+          {
+            "type": "uint256",
+            "name": "freeCollateral"
+          },
+          {
+            "type": "int256",
+            "name": "marketExposure"
+          },
+          {
+            "type": "int256",
+            "name": "minTilt"
+          },
+          {
+            "type": "uint256",
+            "name": "minTiltPositionId"
+          },
+          {
+            "type": "uint256",
+            "name": "minTiltShort"
+          },
+          {
+            "type": "uint256",
+            "name": "pendingYield"
+          },
+          {
+            "type": "uint256",
+            "name": "positionsScanned"
+          },
+          {
+            "type": "tuple[]",
+            "name": "native",
+            "components": [
+              {
+                "type": "uint256",
+                "name": "positionId"
+              },
+              {
+                "type": "int256",
+                "name": "tilt"
+              },
+              {
+                "type": "uint256",
+                "name": "longBalance"
+              },
+              {
+                "type": "uint256",
+                "name": "shortBalance"
+              }
+            ]
+          },
+          {
+            "type": "tuple[]",
+            "name": "wrapped",
+            "components": [
+              {
+                "type": "uint256",
+                "name": "positionId"
+              },
+              {
+                "type": "address",
+                "name": "longToken"
+              },
+              {
+                "type": "uint256",
+                "name": "longBalance"
+              },
+              {
+                "type": "address",
+                "name": "shortToken"
+              },
+              {
+                "type": "uint256",
+                "name": "shortBalance"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

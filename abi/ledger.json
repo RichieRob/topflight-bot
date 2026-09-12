@@ -1,0 +1,339 @@
+[
+  {
+    "name": "buyForMarket",
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "marketId"
+      },
+      {
+        "type": "uint256",
+        "name": "positionId"
+      },
+      {
+        "type": "bool",
+        "name": "isLong"
+      },
+      {
+        "type": "uint256",
+        "name": "usdcIn"
+      },
+      {
+        "type": "uint256",
+        "name": "minTokensOut"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "buyExactTokensForMarket",
+    "type": "function",
+    "stateMutability": "nonpayable",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "marketId"
+      },
+      {
+        "type": "uint256",
+        "name": "positionId"
+      },
+      {
+        "type": "bool",
+        "name": "isLong"
+      },
+      {
+        "type": "uint256",
+        "name": "t"
+      },
+      {
+        "type": "uint256",
+        "name": "maxUSDCIn"
+      }
+    ],
+    "outputs": []
+  },
+  {
+    "name": "getMarketPositions",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "marketId"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256[]"
+      }
+    ]
+  },
+  {
+    "name": "getPricingMM",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "marketId"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "name": "realFreeCollateral",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "account"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "name": "getLongAndShortBalances",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "account"
+      },
+      {
+        "type": "uint256",
+        "name": "marketId"
+      },
+      {
+        "type": "uint256",
+        "name": "positionId"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": "longBalance"
+      },
+      {
+        "type": "uint256",
+        "name": "shortBalance"
+      }
+    ]
+  },
+  {
+    "name": "heldPositions",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "account"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256[]"
+      }
+    ]
+  },
+  {
+    "name": "getPositionLiquidity",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "account"
+      },
+      {
+        "type": "uint256",
+        "name": "marketId"
+      },
+      {
+        "type": "uint256",
+        "name": "positionId"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": "realFreeCollateral"
+      },
+      {
+        "type": "int256",
+        "name": "marketExposure"
+      },
+      {
+        "type": "int256",
+        "name": "tilt"
+      }
+    ]
+  },
+  {
+    "name": "getMinTilt",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "account"
+      },
+      {
+        "type": "uint256",
+        "name": "marketId"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "int256",
+        "name": "minTilt"
+      },
+      {
+        "type": "uint256",
+        "name": "minPositionId"
+      }
+    ]
+  },
+  {
+    "name": "pendingYield",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "account"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256"
+      }
+    ]
+  },
+  {
+    "name": "eusdcBalance",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "account"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": "amount"
+      }
+    ]
+  },
+  {
+    "name": "getPositionDetails",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "marketId"
+      },
+      {
+        "type": "uint256",
+        "name": "positionId"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "string",
+        "name": "name"
+      },
+      {
+        "type": "string",
+        "name": "ticker"
+      }
+    ]
+  },
+  {
+    "name": "ladderPpmOf",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "positionId"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint32"
+      }
+    ]
+  },
+  {
+    "name": "ladderSyncedIndex",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [],
+    "outputs": [
+      {
+        "type": "bool",
+        "name": "synced"
+      },
+      {
+        "type": "uint256",
+        "name": "index"
+      }
+    ]
+  },
+  {
+    "name": "positionWrapper",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "marketId"
+      },
+      {
+        "type": "uint256",
+        "name": "positionId"
+      },
+      {
+        "type": "bool",
+        "name": "isLong"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "address"
+      }
+    ]
+  },
+  {
+    "name": "positionWrapperOf",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "address",
+        "name": "account"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "bool"
+      }
+    ]
+  }
+]

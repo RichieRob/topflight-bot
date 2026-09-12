@@ -1,0 +1,6 @@
+# TopFlight bot kit
+
+- [Bot brief](https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-for-bots.md)
+- [Deployment JSON](https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight.json)
+- [Package manifest](https://raw.githubusercontent.com/RichieRob/topflight-bot/main/bot-package.json)
+- [Official docs](https://docs.topflight.fun/build-a-bot)

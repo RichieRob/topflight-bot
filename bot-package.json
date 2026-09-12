@@ -1,0 +1,23 @@
+{
+  "name": "@topflight/bot",
+  "version": "0.2.0",
+  "url": "https://docs.topflight.fun/topflight-bot-0.2.0.tgz",
+  "mirrors": [
+    "https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.0.tgz"
+  ],
+  "repository": "https://github.com/RichieRob/topflight-bot",
+  "sha256": "5b312671e7d6a105603d7988812cf913fb23d6d04f4e254182b122815d6ddaa4",
+  "integrity": "sha512-AO7Wi8vWJSsSlIDZbQ/qNbTmGgDN8QYV2E9eXAvvP51GnhtBTST/6LADgb7YJbP+hLHDUl9rQCNHcwc669+ZTg==",
+  "abiSha256": {
+    "ledger": "81ad2f5c62f929ace9c5087c4c46e39c7e7be453bcb2255bb2f2272b273b608d",
+    "maker": "5b6f24948db44cd5990f9fdc82af2515422574470177f8ef7ea4d0ac2188ca1c",
+    "books": "a5095c33aff8875961944aafec788dca989fecf6b21a76bb98b6f759b6fcdcc7",
+    "oracle": "6a635e6a5df8a407eaa7de051c7e07361e278014c64820cb1efe2dd315f18828"
+  },
+  "abis": {
+    "ledger": "https://docs.topflight.fun/bot-abi/ledger.json",
+    "maker": "https://docs.topflight.fun/bot-abi/maker.json",
+    "books": "https://docs.topflight.fun/bot-abi/books.json",
+    "oracle": "https://docs.topflight.fun/bot-abi/oracle.json"
+  }
+}

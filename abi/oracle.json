@@ -1,0 +1,78 @@
+[
+  {
+    "name": "latest",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [],
+    "outputs": [
+      {
+        "type": "uint256",
+        "name": "index"
+      },
+      {
+        "type": "tuple",
+        "name": "e",
+        "components": [
+          {
+            "type": "uint64",
+            "name": "timestamp"
+          },
+          {
+            "type": "uint256",
+            "name": "packedOrder"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "orderAt",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "i"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint16[]",
+        "name": "order"
+      }
+    ]
+  },
+  {
+    "name": "rowsAt",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "i"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint16[]",
+        "name": "order"
+      },
+      {
+        "type": "uint16[]",
+        "name": "points"
+      },
+      {
+        "type": "int16[]",
+        "name": "goalDifference"
+      },
+      {
+        "type": "uint16[]",
+        "name": "goalsFor"
+      },
+      {
+        "type": "uint16[]",
+        "name": "played"
+      }
+    ]
+  }
+]

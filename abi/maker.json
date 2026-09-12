@@ -1,0 +1,135 @@
+[
+  {
+    "name": "getAllLongPricesWad",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "marketId"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "uint256[]",
+        "name": "positionIds"
+      },
+      {
+        "type": "uint256[]",
+        "name": "priceWads"
+      },
+      {
+        "type": "uint256",
+        "name": "reservePriceWad"
+      }
+    ]
+  },
+  {
+    "name": "previewBuyExactTokensFull",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "marketId"
+      },
+      {
+        "type": "uint256",
+        "name": "positionId"
+      },
+      {
+        "type": "bool",
+        "name": "isLong"
+      },
+      {
+        "type": "uint256",
+        "name": "tokens"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "tuple",
+        "components": [
+          {
+            "type": "uint256",
+            "name": "amount"
+          },
+          {
+            "type": "uint256[]",
+            "name": "positionIds"
+          },
+          {
+            "type": "uint256[]",
+            "name": "longBeforeWad"
+          },
+          {
+            "type": "uint256[]",
+            "name": "longAfterWad"
+          },
+          {
+            "type": "uint256",
+            "name": "reserveBeforeWad"
+          },
+          {
+            "type": "uint256",
+            "name": "reserveAfterWad"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "previewBuyForUSDCFull",
+    "type": "function",
+    "stateMutability": "view",
+    "inputs": [
+      {
+        "type": "uint256",
+        "name": "marketId"
+      },
+      {
+        "type": "uint256",
+        "name": "positionId"
+      },
+      {
+        "type": "bool",
+        "name": "isLong"
+      },
+      {
+        "type": "uint256",
+        "name": "usdcIn"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "tuple",
+        "components": [
+          {
+            "type": "uint256",
+            "name": "amount"
+          },
+          {
+            "type": "uint256[]",
+            "name": "positionIds"
+          },
+          {
+            "type": "uint256[]",
+            "name": "longBeforeWad"
+          },
+          {
+            "type": "uint256[]",
+            "name": "longAfterWad"
+          },
+          {
+            "type": "uint256",
+            "name": "reserveBeforeWad"
+          },
+          {
+            "type": "uint256",
+            "name": "reserveAfterWad"
+          }
+        ]
+      }
+    ]
+  }
+]

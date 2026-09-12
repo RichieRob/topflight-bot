@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.*
+.botkey
+.topflight-run.lock
+.topflight-pending.json
+my-bot/
+topflight-bot/

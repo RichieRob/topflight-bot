@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "specVersion": "0.2.0",
+  "mirrors": {
+    "brief": [
+      "https://docs.topflight.fun/topflight-for-bots.md",
+      "https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-for-bots.md"
+    ],
+    "deployment": [
+      "https://docs.topflight.fun/topflight.json",
+      "https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight.json"
+    ],
+    "abis": {
+      "ledger": "https://raw.githubusercontent.com/RichieRob/topflight-bot/main/abi/ledger.json",
+      "maker": "https://raw.githubusercontent.com/RichieRob/topflight-bot/main/abi/maker.json",
+      "books": "https://raw.githubusercontent.com/RichieRob/topflight-bot/main/abi/books.json",
+      "oracle": "https://raw.githubusercontent.com/RichieRob/topflight-bot/main/abi/oracle.json"
+    }
+  },
+  "environment": "sepolia-beta",
+  "chainId": 11155111,
+  "marketId": 0,
+  "genesisBlock": 11669989,
+  "contracts": {
+    "ledger": "0xff02A65A3732B0e349Bc08A05D657e6A247315d7",
+    "maker": "0x07fa9b0d21909a54C2fec7E955a928c84C699eF3",
+    "eusdc": "0x9E3D657d0Fc7A2cF977AD229954eBc6e14344e06",
+    "oracle": "0x42679a3D458DFb19b7A5005fEDdC77840755D4d5",
+    "books": "0x9E729FC77A1E65B59E5de7DE52ec004176645856",
+    "views": "0x55882304C3923Ab428cfC773E7c3d9870C112eeE",
+    "router": "0x681651932AdA67Af422b94b4b8ace4D02b214f9D"
+  },
+  "abis": {
+    "ledger": "https://docs.topflight.fun/bot-abi/ledger.json",
+    "maker": "https://docs.topflight.fun/bot-abi/maker.json",
+    "books": "https://docs.topflight.fun/bot-abi/books.json",
+    "oracle": "https://docs.topflight.fun/bot-abi/oracle.json"
+  },
+  "abiSha256": {
+    "ledger": "81ad2f5c62f929ace9c5087c4c46e39c7e7be453bcb2255bb2f2272b273b608d",
+    "maker": "5b6f24948db44cd5990f9fdc82af2515422574470177f8ef7ea4d0ac2188ca1c",
+    "books": "a5095c33aff8875961944aafec788dca989fecf6b21a76bb98b6f759b6fcdcc7",
+    "oracle": "6a635e6a5df8a407eaa7de051c7e07361e278014c64820cb1efe2dd315f18828"
+  },
+  "sdk": {
+    "name": "@topflight/bot",
+    "version": "0.2.0",
+    "url": "https://docs.topflight.fun/topflight-bot-0.2.0.tgz",
+    "mirrors": [
+      "https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.0.tgz"
+    ],
+    "repository": "https://github.com/RichieRob/topflight-bot",
+    "sha256": "5b312671e7d6a105603d7988812cf913fb23d6d04f4e254182b122815d6ddaa4",
+    "integrity": "sha512-AO7Wi8vWJSsSlIDZbQ/qNbTmGgDN8QYV2E9eXAvvP51GnhtBTST/6LADgb7YJbP+hLHDUl9rQCNHcwc669+ZTg==",
+    "abiSha256": {
+      "ledger": "81ad2f5c62f929ace9c5087c4c46e39c7e7be453bcb2255bb2f2272b273b608d",
+      "maker": "5b6f24948db44cd5990f9fdc82af2515422574470177f8ef7ea4d0ac2188ca1c",
+      "books": "a5095c33aff8875961944aafec788dca989fecf6b21a76bb98b6f759b6fcdcc7",
+      "oracle": "6a635e6a5df8a407eaa7de051c7e07361e278014c64820cb1efe2dd315f18828"
+    },
+    "abis": {
+      "ledger": "https://docs.topflight.fun/bot-abi/ledger.json",
+      "maker": "https://docs.topflight.fun/bot-abi/maker.json",
+      "books": "https://docs.topflight.fun/bot-abi/books.json",
+      "oracle": "https://docs.topflight.fun/bot-abi/oracle.json"
+    }
+  },
+  "registrationBaseUrl": "https://football.topflight.fun",
+  "botEndpoints": {
+    "register": "POST /api/bot/register",
+    "gas": "POST /api/bot/gas",
+    "blurb": "PATCH /api/bot/blurb",
+    "export": "GET /api/bot/export"
+  },
+  "documentation": "https://docs.topflight.fun/topflight-for-bots.md",
+  "listedClubs": {
+    "contract": "0x07fa9b0d21909a54C2fec7E955a928c84C699eF3",
+    "method": "getAllLongPricesWad(uint256)",
+    "args": [
+      0
+    ],
+    "note": "Read live positionIds; ids are not a contiguous range."
+  },
+  "tradeMethods": [
+    "buyForMarket(uint256 marketId, uint256 positionId, bool isLong, uint256 usdcIn, uint256 minTokensOut)",
+    "buyExactTokensForMarket(uint256 marketId, uint256 positionId, bool isLong, uint256 t, uint256 maxUSDCIn)",
+    "pendingYield(address account) view returns (uint256)"
+  ],
+  "tokenDecimals": 6,
+  "cashDecimals": 6,
+  "priceDecimals": 18,
+  "payoutShare": {
+    "contract": "0xff02A65A3732B0e349Bc08A05D657e6A247315d7",
+    "method": "ladderPpmOf(uint256)",
+    "scale": 1000000,
+    "note": "Current daily payout allocation, not a fair-price estimate."
+  }
+}
