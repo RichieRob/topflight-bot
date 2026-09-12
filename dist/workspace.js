@@ -1,7 +1,7 @@
-import { mkdir, readFile, writeFile, chmod, open, unlink } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, chmod, open, unlink, copyFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-export const packageUrl = process.env.TOPFLIGHT_PACKAGE_URL ?? 'https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.1.tgz';
+export const packageUrl = process.env.TOPFLIGHT_PACKAGE_URL ?? 'https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.3.0.tgz';
 export const starterStrategy = `// Put your trading model here. payoutShare describes current yield allocation,
 // not a fair token price. Return one action per cycle, or null to wait.
 // Open long: { buy: club.id, usd: '8' }; close long: { sell: club.id, tokens: '10' }.
@@ -29,18 +29,26 @@ export async function wallet(directory) {
     privateKeyToAccount(key);
     return key;
 }
-export async function scaffold(directory) {
+export async function scaffold(directory, bundledCli) {
     await mkdir(directory, { recursive: true });
     await createOnly(join(directory, 'strategy.mjs'), starterStrategy);
     await createOnly(join(directory, 'package.json'), JSON.stringify({
         name: 'my-topflight-bot', private: true, type: 'module',
-        scripts: { start: 'topflight-bot run --strategy ./strategy.mjs', snapshot: 'topflight-bot snapshot' },
-        dependencies: { '@topflight/bot': packageUrl },
+        scripts: { start: 'node .topflight-cli.mjs run --strategy ./strategy.mjs', snapshot: 'node .topflight-cli.mjs snapshot' },
     }, null, 2) + '\n');
+    if (bundledCli) {
+        try {
+            await copyFile(bundledCli, join(directory, '.topflight-cli.mjs'));
+        }
+        catch (error) {
+            if (error.code !== 'ENOENT')
+                throw error;
+        }
+    }
     const ignorePath = join(directory, '.gitignore');
     const previous = await readFile(ignorePath, 'utf8').catch((error) => { if (error.code !== 'ENOENT')
         throw error; return ''; });
-    const entries = ['.botkey', '.topflight-run.lock', '.topflight-pending.json', 'node_modules/'];
+    const entries = ['.botkey', '.topflight-cli.mjs', '.topflight-run.lock', '.topflight-pending.json', 'node_modules/'];
     await writeFile(ignorePath, previous + '\n' + entries.filter(entry => !previous.split('\n').includes(entry)).join('\n') + '\n');
 }
 export async function runnerLock(directory) {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specVersion": "0.2.2",
+  "specVersion": "0.3.0",
   "mirrors": {
     "brief": [
       "https://docs.topflight.fun/topflight-for-bots.md",
@@ -44,14 +44,14 @@
   },
   "sdk": {
     "name": "@topflight/bot",
-    "version": "0.2.2",
-    "url": "https://docs.topflight.fun/topflight-bot-0.2.2.tgz",
+    "version": "0.3.0",
+    "url": "https://docs.topflight.fun/topflight-bot-0.3.0.tgz",
     "mirrors": [
-      "https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.2.tgz"
+      "https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.3.0.tgz"
     ],
     "repository": "https://github.com/RichieRob/topflight-bot",
-    "sha256": "4394565cd223160a162d4be3268daa561ac0a974f0ce2431ad6dd024eed003b5",
-    "integrity": "sha512-U0EJqtFBmE+7dtnqDRIeGdZiySZKn36K7NFx5EmmddUE0+zc4DFwwVyAj59mdQvOhOrbRXoiJDLojMgx6o9x9Q==",
+    "sha256": "be34ca700e67e0f4584b22fee0ec2023fd17665f09f363d11e19514b1ee7149d",
+    "integrity": "sha512-tlXNWOnpQ7WK2CXaQ067+sDEdjIZo/p8mT4nRPLbMkcybv04+1XTBwzQMWYWRMYbLBJineX8ehjVVt9DhyzL6Q==",
     "abiSha256": {
       "ledger": "81ad2f5c62f929ace9c5087c4c46e39c7e7be453bcb2255bb2f2272b273b608d",
       "maker": "5b6f24948db44cd5990f9fdc82af2515422574470177f8ef7ea4d0ac2188ca1c",

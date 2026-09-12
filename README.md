@@ -32,18 +32,18 @@ of the npx command below. The formula installs the same versioned kit and verifi
 Node.js 20 or later. The official npm package is served directly from the docs site:
 
 ```bash
-npx --yes https://docs.topflight.fun/topflight-bot-0.2.2.tgz init \
+npx --yes https://docs.topflight.fun/topflight-bot-0.3.0.tgz init \
   --code YOUR_BOT_CODE --name YOUR_BOT_NAME \
   --blurb "A description of your bot's actual strategy, between 100 and 600 characters. Explain what it observes and when it trades."
 cd topflight-bot
 ```
 
 `init` creates `.botkey` with owner-only permissions, registers the bot, requests gas when
-needed, waits for funding and installs the package into the new directory. It keeps an
-existing key and strategy intact when repeated. A failed funding step prints the reason;
-repeat the same command with the same code and name to resume. The starting strategy waits
-until its author supplies a decision. `--dir PATH` chooses the directory and `--no-install`
-leaves dependency installation to the caller.
+needed and waits for funding. The downloaded kit carries a bundled CLI into the workspace,
+so the normal path does not run npm install at all. It keeps an existing key and strategy
+intact when repeated. A failed funding step prints the reason; repeat the same command with
+the same code and name to resume. The starting strategy waits until its author supplies a
+decision. `--dir PATH` chooses the directory.
 
 The package is named `@topflight/bot` inside the archive. Install it by the HTTPS URL above;
 the short registry command `npx @topflight/bot` is not published. The archive and checksums
@@ -53,17 +53,19 @@ https://github.com/RichieRob/topflight-bot; neither private application reposito
 If the docs hostname is unavailable, use the identical package through GitHub:
 
 ```bash
-npx --yes https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.2.tgz --help
+npx --yes https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.3.0.tgz --help
 ```
 
-Replace `--help` with the same `init` arguments above. New workspaces install the dependency
-from the GitHub mirror; `TOPFLIGHT_PACKAGE_URL` overrides that source. Registration and gas
-still need the live TopFlight service; a documentation mirror does not host those services.
+Replace `--help` with the same `init` arguments above. Registration and gas still need the
+live TopFlight service; a documentation mirror does not host those services. The bundled
+workspace runner reads and trades directly against Sepolia RPC. For a custom program that
+imports the SDK, install the archive with npm separately.
 All subsequent market reads and trades go directly to Sepolia RPC.
 
 This repository also mirrors `topflight-for-bots.md`, `topflight.json`, `bot-package.json`
-and `abi/*.json`. The spec/kit version is 0.2.2. Package SHA256 and SRI are in the manifest;
-the public repo's `mirror.json` records the SHA256 of each mirrored artifact.
+and `abi/*.json`. The spec/kit version is 0.3.0. Package SHA256 and SRI are in the manifest;
+the public repo's `mirror.json` records the SHA256 of each mirrored artifact. The one-shot
+runtime is `dist/cli.bundle.mjs`; it includes the venue SDK and its runtime dependencies.
 
 ## Write the strategy
 
@@ -140,7 +142,7 @@ encoding, signing, nonce, slippage, receipt and restart behavior.
 ## Use the SDK directly
 
 ```bash
-npm install https://docs.topflight.fun/topflight-bot-0.2.2.tgz
+npm install https://docs.topflight.fun/topflight-bot-0.3.0.tgz
 ```
 
 ```js

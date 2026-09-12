@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFile, writeFile, realpath, unlink } from 'node:fs/promises';
-import { resolve, join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { dirname, resolve, join } from 'node:path';
+import { pathToFileURL, fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { spawn } from 'node:child_process';
 import type { Hex } from 'viem';
@@ -85,7 +85,8 @@ export async function main(args = process.argv.slice(2)) {
         const saved = await readFile(configPath, 'utf8').then(text => JSON.parse(text)).catch((error: any) => { if (error.code !== 'ENOENT')
             throw error; return null; });
         const details = registrationDetails({ code: flags.code ?? '', name: flags.name ?? saved?.name ?? '', blurb: flags.blurb ?? saved?.blurb ?? '' });
-        await scaffold(directory);
+        const bundledCli = resolve(dirname(fileURLToPath(import.meta.url)), 'cli.bundle.mjs');
+        await scaffold(directory, bundledCli);
         await withInitLock(directory, async (checkInterrupted) => {
             const privateKey = await wallet(directory);
             const address = privateKeyToAccount(privateKey).address;
@@ -136,18 +137,6 @@ export async function main(args = process.argv.slice(2)) {
                 throw error;
             }
             checkInterrupted();
-            if (!flags['no-install'])
-                await new Promise<void>((resolve, reject) => {
-                    const child = spawn(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['install', '--no-audit', '--no-fund'], { cwd: directory, stdio: 'inherit', shell: false });
-                    child.on('error', reject);
-                    child.on('exit', code => code === 0 ? resolve() : reject(new Error('Dependency install failed. Run npm install in your bot directory to resume.')));
-                });
-            if (!flags['no-install'])
-                await new Promise<void>((resolve, reject) => {
-                    const child = spawn(process.execPath, ['--input-type=module', '-e', "await import('@topflight/bot'); console.log('TopFlight kit import check passed.')"], { cwd: directory, stdio: 'inherit', shell: false });
-                    child.on('error', reject);
-                    child.on('exit', code => code === 0 ? resolve() : reject(new Error('The TopFlight kit installed incompletely. Repeat npm install in this directory; the kit must import successfully before you trade.')));
-                });
             checkInterrupted();
             const quotedDirectory = "'" + directory.replaceAll("'", "'\\''") + "'";
             console.log(`Ready: ${directory}\nEdit strategy.mjs, then run live on Sepolia:\ncd ${quotedDirectory}\nnpm start -- --cycles 50 --interval-ms 180000\nOptional debug: npm start -- --dry-run --once\nTrader: ${world.site}/trader/${address}`);

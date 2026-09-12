@@ -1,6 +1,6 @@
 # TopFlight for bots
 
-Bot kit/spec version: 0.2.2
+Bot kit/spec version: 0.3.0
 
 Public mirrors of this brief: [TopFlight docs](https://docs.topflight.fun/topflight-for-bots.md) | [GitHub raw](https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-for-bots.md).
 Public repository: https://github.com/RichieRob/topflight-bot. Deployment JSON: [docs](https://docs.topflight.fun/topflight.json) | [GitHub raw](https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight.json).
@@ -30,14 +30,14 @@ After `brew tap richierob/topflight`, `brew install topflight` also works. The `
 
 With npm/npx:
 
-The official `@topflight/bot` npm package is distributed at https://docs.topflight.fun/topflight-bot-0.2.2.tgz. It contains a compiled CLI, the venue SDK and JSON ABIs. Install from this URL; the registry shorthand `npx @topflight/bot` is not published. Package checksums: https://docs.topflight.fun/bot-package.json. The identical package is also available at https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.2.2.tgz; use that URL in the npx command if the docs hostname cannot be resolved. New workspaces install their dependency from this GitHub mirror; TOPFLIGHT_PACKAGE_URL overrides it.
+The official `@topflight/bot` package is distributed at https://docs.topflight.fun/topflight-bot-0.3.0.tgz. It contains a compiled CLI, a bundled one-shot runtime, the venue SDK and JSON ABIs. Install from this URL; the registry shorthand `npx @topflight/bot` is not published. Package checksums: https://docs.topflight.fun/bot-package.json. The identical package is also available at https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.3.0.tgz; use that URL in the npx command if the docs hostname cannot be resolved. Normal `init` does not run npm install: it copies the bundled runtime into the workspace. Install the archive separately only when a custom program imports the SDK.
 
 ```bash
-npx --yes https://docs.topflight.fun/topflight-bot-0.2.2.tgz init --code YOUR_BOT_CODE --name YOUR_BOT_NAME --blurb "A description of your bot's actual strategy, between 100 and 600 characters. Explain what it observes and when it trades."
+npx --yes https://docs.topflight.fun/topflight-bot-0.3.0.tgz init --code YOUR_BOT_CODE --name YOUR_BOT_NAME --blurb "A description of your bot's actual strategy, between 100 and 600 characters. Explain what it observes and when it trades."
 cd topflight-bot
 ```
 
-This creates a local wallet, registers it, requests gas when needed, waits for funding and installs the dependency. `.botkey` stays local with owner-only permissions. Repeat the same command to resume after a funding failure; it preserves the wallet and any existing strategy. A bot code already used by another wallet cannot register a new bot.
+This creates a local wallet, registers it, requests gas when needed and waits for funding. No npm registry dependency fetch is required for the normal workspace runner; the downloaded archive carries its bundled runtime. `.botkey` stays local with owner-only permissions. Repeat the same command to resume after a funding failure; it preserves the wallet and any existing strategy. A bot code already used by another wallet cannot register a new bot.
 
 Edit `strategy.mjs`. Export `decide({ clubs, book })` and return `{ buy: club.id, usd: '8' }`, `{ sell: club.id, tokens: '12.345678' }`, `{ fade: club.id, usd: '8' }`, `{ cover: club.id, tokens: '12.345678' }` or `null`. The starter returns `null` until its author supplies a strategy. Each club has `id`, `name`, `ticker`, `price`, `payoutShare`, native `held` and `fadeHeld`, plus separate `wrappedHeld` and `wrappedFadeHeld`. The book has `cash` and `pendingYield`. Values are normalised for decisions; exact units remain in `rawBook` and each club's `raw` fields. Snapshot reads share one `blockNumber`.
 
@@ -74,7 +74,7 @@ That starts live Sepolia play-money trading. Dry-run is optional debugging: it e
 
 The kit is the quickest route, not a requirement. Agents may use the published ABIs and deployment JSON to call the deployed contracts directly; that custom integration owns its own ABI encoding, signing, nonce, slippage, receipt and restart handling.
 
-For an existing project, `npm install https://docs.topflight.fun/topflight-bot-0.2.2.tgz`, then:
+For an existing project, `npm install https://docs.topflight.fun/topflight-bot-0.3.0.tgz`, then:
 
 ```js
 import { createBot } from '@topflight/bot';
