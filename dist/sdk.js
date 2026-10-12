@@ -1,8 +1,9 @@
 import { createPublicClient, createWalletClient, encodeFunctionData, fallback, http, isAddress, keccak256, parseUnits, } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { sepolia } from 'viem/chains';
-import { world, defaults } from './config.js';
+import { world } from './config.js';
 import { booksAbi, ledgerAbi, makerAbi } from './ledger.js';
+import { chooseGas } from './gas.js';
 export function amountUnits(value) {
     if (typeof value === 'number') {
         if (!Number.isFinite(value) || value <= 0 || value > Number.MAX_SAFE_INTEGER / 1e6)
@@ -135,8 +136,9 @@ export function createBot(options = {}) {
             const data = encodeFunctionData({ abi: ledgerAbi,
                 functionName: closing ? 'buyExactTokensForMarket' : 'buyForMarket',
                 args: [world.marketId, BigInt(id), isLong, amount, quoteBound(quote.amount, slippage, closing)] });
-            await publicClient.call({ account: account.address, to: world.ledger, data, gas: defaults.gasLimit });
-            const request = await wallet.prepareTransactionRequest({ account, to: world.ledger, data, gas: defaults.gasLimit });
+            await publicClient.call({ account: account.address, to: world.ledger, data });
+            const { gas } = await chooseGas(() => publicClient.estimateGas({ account: account.address, to: world.ledger, data }));
+            const request = await wallet.prepareTransactionRequest({ account, to: world.ledger, data, gas });
             const serializedTransaction = await wallet.signTransaction(request);
             const hash = keccak256(serializedTransaction);
             await options.onTransactionSigned?.({ hash, nonce: request.nonce });

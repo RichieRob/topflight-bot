@@ -32,6 +32,8 @@ export const defaults = {
     reduceImpact: 0.3,
     tieJitter: 0.08,
     slippageBps: 200,
-    gasLimit: 1500000n,
+    gasHeadroomPct: 125,
+    gasCap: 6000000n,
+    gasFallback: 3000000n,
     dryRunDepthB: 28_953,
 };

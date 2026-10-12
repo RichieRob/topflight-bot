@@ -1,6 +1,8 @@
 import { createPublicClient, createWalletClient, http, parseAbi, parseAbiItem, } from 'viem';
 import { sepolia } from 'viem/chains';
-import { world, defaults } from './config.js';
+import { estimateContractGas } from 'viem/actions';
+import { world } from './config.js';
+import { chooseGas } from './gas.js';
 export const ledgerAbi = parseAbi([
     'function buyForMarket(uint256 marketId,uint256 positionId,bool isLong,uint256 usdcIn,uint256 minTokensOut)',
     'function buyExactTokensForMarket(uint256 marketId,uint256 positionId,bool isLong,uint256 t,uint256 maxUSDCIn)',
@@ -61,33 +63,23 @@ export function clients(account) {
     };
 }
 export async function sendTrade(wallet, account, trade) {
+    let call;
     if (trade.usdcIn != null)
-        return wallet.writeContract({
-            account,
-            chain: sepolia,
-            address: world.ledger,
-            abi: ledgerAbi,
+        call = {
             functionName: 'buyForMarket',
-            args: [
-                world.marketId,
-                trade.positionId,
-                trade.isLong,
-                trade.usdcIn,
-                trade.minTokensOut ?? 0n,
-            ],
-            gas: defaults.gasLimit,
-        });
-    if (trade.tokens == null || trade.maxUSDCIn == null)
-        throw Error('exact-token trade requires tokens and maxUSDCIn');
-    return wallet.writeContract({
-        account,
-        chain: sepolia,
-        address: world.ledger,
-        abi: ledgerAbi,
-        functionName: 'buyExactTokensForMarket',
-        args: [world.marketId, trade.positionId, trade.isLong, trade.tokens, trade.maxUSDCIn],
-        gas: defaults.gasLimit,
-    });
+            args: [world.marketId, trade.positionId, trade.isLong, trade.usdcIn, trade.minTokensOut ?? 0n],
+        };
+    else {
+        if (trade.tokens == null || trade.maxUSDCIn == null)
+            throw Error('exact-token trade requires tokens and maxUSDCIn');
+        call = {
+            functionName: 'buyExactTokensForMarket',
+            args: [world.marketId, trade.positionId, trade.isLong, trade.tokens, trade.maxUSDCIn],
+        };
+    }
+    const request = { account, chain: sepolia, address: world.ledger, abi: ledgerAbi, ...call };
+    const { gas } = await chooseGas(() => estimateContractGas(wallet, request));
+    return wallet.writeContract({ ...request, gas });
 }
 export async function chainPrices(client) {
     const [ids, wads] = await client.readContract({

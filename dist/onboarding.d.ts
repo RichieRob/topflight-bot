@@ -35,6 +35,19 @@ export declare function claimGas(options: DoorOptions): Promise<{
     ok: true;
     txHash: Hex;
 }>;
+export declare const CLAIM_NONCE: RegExp;
+export declare const CLAIM_HANDLE: RegExp;
+export declare function botClaimMessage(address: string, handle: string, nonce: string): string;
+export declare function claimSignature(options: {
+    privateKey: Hex;
+    handle: string;
+    nonce: string;
+}): Promise<{
+    address: string;
+    handle: string;
+    message: string;
+    signature: Hex;
+}>;
 export declare function waitForStack(options: {
     address: Address;
     readBalances: (address: Address) => Promise<{

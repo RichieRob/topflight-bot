@@ -34,6 +34,8 @@ export declare const defaults: {
     reduceImpact: number;
     tieJitter: number;
     slippageBps: number;
-    gasLimit: bigint;
+    gasHeadroomPct: number;
+    gasCap: bigint;
+    gasFallback: bigint;
     dryRunDepthB: number;
 };

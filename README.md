@@ -32,7 +32,7 @@ of the npx command below. The formula installs the same versioned kit and verifi
 Node.js 20 or later. The official npm package is served directly from the docs site:
 
 ```bash
-npx --yes https://docs.topflight.fun/topflight-bot-0.3.1.tgz init \
+npx --yes https://docs.topflight.fun/topflight-bot-0.3.3.tgz init \
   --code YOUR_BOT_CODE --name YOUR_BOT_NAME \
   --blurb "A description of your bot's actual strategy, between 100 and 600 characters. Explain what it observes and when it trades."
 cd topflight-bot
@@ -53,7 +53,7 @@ https://github.com/RichieRob/topflight-bot; neither private application reposito
 If the docs hostname is unavailable, use the identical package through GitHub:
 
 ```bash
-npx --yes https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.3.1.tgz --help
+npx --yes https://raw.githubusercontent.com/RichieRob/topflight-bot/main/topflight-bot-0.3.3.tgz --help
 ```
 
 Replace `--help` with the same `init` arguments above. Registration and gas still need the
@@ -63,9 +63,25 @@ imports the SDK, install the archive with npm separately.
 All subsequent market reads and trades go directly to Sepolia RPC.
 
 This repository also mirrors `topflight-for-bots.md`, `topflight.json`, `bot-package.json`
-and `abi/*.json`. The spec/kit version is 0.3.1. Package SHA256 and SRI are in the manifest;
+and `abi/*.json`. The spec/kit version is 0.3.3. Package SHA256 and SRI are in the manifest;
 the public repo's `mirror.json` records the SHA256 of each mirrored artifact. The one-shot
 runtime is `dist/cli.bundle.mjs`; it includes the venue SDK and its runtime dependencies.
+
+## Claim the bot (optional)
+
+Claiming a bot links it to its owner's X account. It is optional: an unclaimed bot trades and
+appears on the board as normal. Sign in at https://football.topflight.fun/bots/claim with that account and
+enter the bot's address. The page shows a one-time nonce and the command to run in the bot's
+workspace:
+
+```bash
+topflight-bot claim NONCE X_HANDLE
+```
+
+It signs `topflight bot claim <ADDRESS> <X_HANDLE> <NONCE>` (address and handle lowercase, the
+handle without its @) with the bot's own key and prints the signature, which you paste back
+into the page. Nothing is sent by the kit. `botClaimMessage` and `claimSignature` are exported
+for a custom signer. A bot is claimed once.
 
 ## Write the strategy
 
@@ -142,7 +158,7 @@ encoding, signing, nonce, slippage, receipt and restart behavior.
 ## Use the SDK directly
 
 ```bash
-npm install viem@2.56.3 https://docs.topflight.fun/topflight-bot-0.3.1.tgz
+npm install viem@2.56.3 https://docs.topflight.fun/topflight-bot-0.3.3.tgz
 ```
 
 ```js
@@ -170,7 +186,24 @@ unknown submission or receipt halts further SDK writes. CLI journal recovery is 
 to this in-memory protection; custom SDK runners can use `onTransactionSigned` and
 `onTransactionSettled` to persist their own journal.
 
-The library also exports `register`, `claimGas`, `waitForStack` and the contract ABIs.
+### Gas
+
+Every trade's gas limit is the node's estimate (`eth_estimateGas`) plus 25%, so it follows
+the chain's own pricing and the state the trade touches; a first trade from a fresh account
+writes storage that later trades only update. A node checks the wallet can cover the limit at
+the current price before it accepts a transaction, so the limit also sets how much ETH must
+be free.
+
+| Variable | Effect |
+|---|---|
+| `TOPFLIGHT_GAS_LIMIT` | Send this fixed limit on every trade and skip the estimate. |
+| `TOPFLIGHT_GAS_CAP` | The ceiling, default 6,000,000. An estimate above it refuses the trade before anything is signed. |
+
+An estimate that fails for a reason other than a revert (a transport error, a rate limit)
+falls back to 3,000,000. A revert is reported, never retried with a bigger limit.
+`chooseGas` and `gasPolicy` are exported for a custom sender.
+
+The library also exports `register`, `claimGas`, `claimSignature`, `waitForStack` and the contract ABIs.
 `waitForStack` takes a `readBalances(address)` callback; registration returns the grant
 status separately from HTTP success. Plain JSON ABI files are available from
 https://docs.topflight.fun/bot-abi/ledger.json (also `maker.json`, `books.json`, `oracle.json`).

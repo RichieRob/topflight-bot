@@ -51,7 +51,7 @@ test('snapshot joins actual ids, pins every read, and reconstructs sparse comple
   assert.equal('fair' in snapshot.clubs[0]!, false);
 });
 
-async function rpcFixture(options: { rejectSend?: boolean; reverted?: boolean; delay?: number } = {}) {
+async function rpcFixture(options: { rejectSend?: boolean; reverted?: boolean; delay?: number; estimate?: bigint } = {}) {
   const submitted: Hex[] = [];
   let receiptHash: Hex | undefined;
   const block = { number: '0x10', hash, parentHash: hash, nonce: '0x0000000000000000', sha3Uncles: hash,
@@ -82,6 +82,7 @@ async function rpcFixture(options: { rejectSend?: boolean; reverted?: boolean; d
           else throw Error('Unhandled contract call ' + decoded.functionName);
           break;
         }
+        case 'eth_estimateGas': result = `0x${(options.estimate ?? 2_060_000n).toString(16)}`; break;
         case 'eth_sendRawTransaction':
           submitted.push(body.params[0]);
           if (options.rejectSend) throw Error('connection outcome unknown');
@@ -160,4 +161,30 @@ test('write failover sends the identical signed transaction to the next endpoint
     assert.equal(failing.submitted[0], working.submitted[0]);
     assert.equal(result.hash, keccak256(working.submitted[0]!));
   } finally { await failing.close(); await working.close(); }
+});
+
+test('a trade sends the node\'s estimate plus 25%, not a fixed limit', async () => {
+  const rpc = await rpcFixture({ estimate: 2_060_000n });
+  try {
+    const bot = createBot({ privateKey: key, rpcUrls: [rpc.url], minWriteIntervalMs: 0 });
+    await bot.buy(21, '8');
+    assert.equal(parseTransaction(rpc.submitted[0]!).gas, 2_575_000n);
+  } finally { await rpc.close(); }
+});
+
+test('TOPFLIGHT_GAS_LIMIT sends a fixed limit; an estimate over TOPFLIGHT_GAS_CAP refuses before signing', async () => {
+  const rpc = await rpcFixture({ estimate: 2_060_000n });
+  try {
+    process.env.TOPFLIGHT_GAS_LIMIT = '2700000';
+    const fixed = createBot({ privateKey: key, rpcUrls: [rpc.url], minWriteIntervalMs: 0 });
+    await fixed.buy(21, '8');
+    assert.equal(parseTransaction(rpc.submitted[0]!).gas, 2_700_000n);
+    delete process.env.TOPFLIGHT_GAS_LIMIT;
+    process.env.TOPFLIGHT_GAS_CAP = '2000000';
+    let signed = 0;
+    const capped = createBot({ privateKey: key, rpcUrls: [rpc.url], minWriteIntervalMs: 0, onTransactionSigned: async () => { signed++; } });
+    await assert.rejects(capped.buy(21, '8'), /above the cap of 2000000/);
+    assert.equal(signed, 0);
+    assert.equal(rpc.submitted.length, 1);
+  } finally { delete process.env.TOPFLIGHT_GAS_LIMIT; delete process.env.TOPFLIGHT_GAS_CAP; await rpc.close(); }
 });

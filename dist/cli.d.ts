@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+export declare const CLAIM_HINT: string;
 type Action = {
     buy: number;
     usd: number | string;

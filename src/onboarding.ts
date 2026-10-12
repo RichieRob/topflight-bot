@@ -72,6 +72,33 @@ export async function claimGas(options: DoorOptions): Promise<{
     const signature = await account.signMessage({ message: `topflight bot gas ${address} ${nonce}` });
     return post(options, '/api/bot/gas', { address, nonce, signature });
 }
+export const CLAIM_NONCE = /^[0-9a-f]{24}$/;
+export const CLAIM_HANDLE = /^@?[A-Za-z0-9_]{1,15}$/;
+export function botClaimMessage(address: string, handle: string, nonce: string): string {
+    if (!/^0x[0-9a-fA-F]{40}$/.test(address))
+        throw new Error('Bot address must be a 0x-prefixed 40-character hex address.');
+    if (!CLAIM_HANDLE.test(handle))
+        throw new Error('X handle must be 1 to 15 letters, digits or underscores, with or without a leading @.');
+    if (!CLAIM_NONCE.test(nonce))
+        throw new Error('Claim nonce must be the 24 lowercase hex characters the claim page shows.');
+    return `topflight bot claim ${address.toLowerCase()} ${handle.replace(/^@/, '').toLowerCase()} ${nonce}`;
+}
+export async function claimSignature(options: {
+    privateKey: Hex;
+    handle: string;
+    nonce: string;
+}): Promise<{
+    address: string;
+    handle: string;
+    message: string;
+    signature: Hex;
+}> {
+    const account = privateKeyToAccount(options.privateKey);
+    const address = account.address.toLowerCase();
+    const message = botClaimMessage(address, options.handle, options.nonce);
+    const signature = await account.signMessage({ message });
+    return { address, handle: options.handle.replace(/^@/, '').toLowerCase(), message, signature };
+}
 export async function waitForStack(options: {
     address: Address;
     readBalances: (address: Address) => Promise<{

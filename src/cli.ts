@@ -9,8 +9,9 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { createBot } from './sdk.js';
 import { world } from './config.js';
 import { ledgerAbi } from './ledger.js';
-import { register, claimGas, registrationDetails, waitForStack } from './onboarding.js';
+import { register, claimGas, claimSignature, registrationDetails, waitForStack } from './onboarding.js';
 import { wallet, scaffold, runnerLock, withInitLock } from './workspace.js';
+export const CLAIM_HINT = `Optional: link this bot to your X account at ${world.site}/bots/claim (topflight-bot claim).`;
 const stringify = (value: unknown) => JSON.stringify(value, (_, v) => typeof v === 'bigint' ? v.toString() : v, 2);
 type Action = {
     buy: number;
@@ -63,10 +64,10 @@ export async function main(args = process.argv.slice(2)) {
         } });
     const command = positionals[0];
     if (flags.help || !command) {
-        console.log('topflight-bot init --code CODE --name NAME --blurb "100–600 characters" [--dir ./topflight-bot] [--no-install]\ntopflight-bot run --strategy ./strategy.mjs [--dry-run] [--once | --cycles N] [--interval-ms 180000]\ntopflight-bot snapshot | gas [--dir DIRECTORY]\ninit saves your key locally and resumes safely when repeated.');
+        console.log('topflight-bot init --code CODE --name NAME --blurb "100–600 characters" [--dir ./topflight-bot] [--no-install]\ntopflight-bot run --strategy ./strategy.mjs [--dry-run] [--once | --cycles N] [--interval-ms 180000]\ntopflight-bot snapshot | gas [--dir DIRECTORY]\ntopflight-bot claim NONCE X_HANDLE [--dir DIRECTORY]   (optional: prints the signature the claim page asks for)\ninit saves your key locally and resumes safely when repeated.');
         return;
     }
-    if (!['init', 'run', 'snapshot', 'gas'].includes(command))
+    if (!['init', 'run', 'snapshot', 'gas', 'claim'].includes(command))
         throw new Error('Unknown command; use --help.');
     const allowed = new Set(command === 'init'
         ? ['dir', 'code', 'name', 'blurb', 'no-install', 'timeout-ms', 'help']
@@ -77,8 +78,9 @@ export async function main(args = process.argv.slice(2)) {
         if (!allowed.has(flag))
             throw new Error(`--${flag} is not supported by ${command}. Use --help.`);
     }
-    if (positionals.length !== 1)
-        throw new Error('Unexpected positional argument; use --help.');
+    if (command === 'claim' ? positionals.length !== 3 : positionals.length !== 1) {
+        throw new Error(command === 'claim' ? 'Usage: topflight-bot claim NONCE X_HANDLE, both as the claim page shows them.' : 'Unexpected positional argument; use --help.');
+    }
     const directory = resolve(flags.dir ?? (command === 'init' ? './topflight-bot' : '.'));
     if (command === 'init') {
         const configPath = join(directory, 'topflight.json');
@@ -140,10 +142,17 @@ export async function main(args = process.argv.slice(2)) {
             checkInterrupted();
             const quotedDirectory = "'" + directory.replaceAll("'", "'\\''") + "'";
             console.log(`Ready: ${directory}\nEdit strategy.mjs, then run live on Sepolia:\ncd ${quotedDirectory}\nnpm start -- --cycles 50 --interval-ms 180000\nOptional debug: npm start -- --dry-run --once\nTrader: ${world.site}/trader/${address}`);
+            console.log(CLAIM_HINT);
         });
         return;
     }
     const privateKey = (await readFile(join(directory, '.botkey'), 'utf8')).trim() as Hex;
+    if (command === 'claim') {
+        const claim = await claimSignature({ privateKey, nonce: positionals[1]!, handle: positionals[2]! });
+        console.log(`Linking bot ${claim.address} to @${claim.handle}. Paste this signature into the claim page:`);
+        console.log(claim.signature);
+        return;
+    }
     if (command === 'gas') {
         const result = await claimGas({ privateKey });
         const receipt = await createBot({}).publicClient.waitForTransactionReceipt({ hash: result.txHash, timeout: 180000 });
